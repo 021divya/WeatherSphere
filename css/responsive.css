@@ -1,0 +1,93 @@
+/* =============================================
+   WeatherSphere — Responsive Styles
+   ============================================= */
+
+/* -------- Tablet: ≤1024px -------- */
+@media (max-width: 1024px) {
+  .header-inner { flex-wrap: wrap; height: auto; padding: 12px 0; gap: 12px; }
+  .search-wrapper { max-width: 100%; order: 3; flex: 1 1 100%; }
+
+  .hero-card { flex-direction: column; gap: 24px; padding: 28px; }
+  .hero-right { align-items: flex-start; }
+  .stats-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .charts-row { grid-template-columns: 1fr 1fr; }
+  .chart-card:last-child { grid-column: 1 / -1; }
+
+  .weekly-grid { grid-template-columns: repeat(4, 1fr); }
+  .weekly-item:nth-child(n+5) { display: none; }
+}
+
+/* -------- Mobile: ≤768px -------- */
+@media (max-width: 768px) {
+  .main-content { padding: 16px 16px 60px; }
+
+  /* Header */
+  .header { padding: 0 16px; }
+  .header-inner { height: auto; padding: 12px 0; gap: 10px; }
+  .logo-text { font-size: 1.1rem; }
+  .nav-tabs { width: 100%; order: 4; overflow-x: auto; padding-bottom: 4px; }
+  .nav-tab { font-size: 0.82rem; padding: 7px 12px; white-space: nowrap; }
+  .unit-toggle { order: 2; }
+
+  /* Hero */
+  .hero-card { padding: 20px; }
+  .city-name { font-size: 1.8rem; }
+  .temp-main { font-size: 4.5rem; }
+  .weather-icon-large { font-size: 5rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-right { width: 100%; }
+
+  /* Sun row */
+  .sun-row { padding: 16px 20px; }
+
+  /* Hourly */
+  .section-card { padding: 20px; }
+
+  /* Weekly — show only 5 */
+  .weekly-grid { grid-template-columns: repeat(5, 1fr); }
+  .weekly-item:nth-child(n+6) { display: none; }
+  .weekly-day { font-size: 0.7rem; }
+  .weekly-high, .weekly-low { font-size: 0.78rem; }
+
+  /* Charts — stack */
+  .charts-row { grid-template-columns: 1fr; }
+
+  /* Map */
+  #weatherMap { height: 350px; }
+  .map-controls { flex-direction: column; align-items: flex-start; }
+
+  /* Cities */
+  .cities-header { flex-direction: column; align-items: flex-start; }
+  .cities-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Travel */
+  .travel-form { flex-direction: column; }
+  .btn-large { align-self: stretch; text-align: center; }
+  .travel-forecast { grid-template-columns: repeat(2, 1fr); }
+
+  /* Notification prompt */
+  .notif-prompt { bottom: 16px; right: 16px; left: 16px; max-width: none; }
+}
+
+/* -------- Small Mobile: ≤480px -------- */
+@media (max-width: 480px) {
+  .city-name { font-size: 1.5rem; }
+  .temp-main { font-size: 3.8rem; }
+  .weather-icon-large { font-size: 4rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .cities-grid { grid-template-columns: 1fr; }
+  .weekly-grid { grid-template-columns: repeat(3, 1fr); }
+  .weekly-item:nth-child(n+4) { display: none; }
+  .layer-buttons { gap: 6px; }
+  .layer-btn { padding: 7px 12px; font-size: 0.78rem; }
+  .travel-summary { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* -------- Print -------- */
+@media print {
+  #weatherCanvas, .alert-banner, .header, .nav-tabs,
+  .layer-buttons, footer { display: none; }
+  .main-content { padding: 0; }
+  .glass-card { border: 1px solid #ccc; }
+}

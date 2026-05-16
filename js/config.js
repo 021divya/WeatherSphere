@@ -1,0 +1,17 @@
+const CONFIG = {
+  OWM_API_KEY: 'a53ea5ad38a0695124b34a58c50a810f',
+
+  ANTHROPIC_API_KEY: '',
+
+  DEFAULT_CITY: 'New Delhi',
+
+  REFRESH_INTERVAL: 10 * 60 * 1000,
+
+  CITIES_REFRESH: 5 * 60 * 1000,
+
+  MAX_RECENT: 5,
+
+  MAX_CITIES: 8,
+
+  DEFAULT_UNIT: 'metric',
+};

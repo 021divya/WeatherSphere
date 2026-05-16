@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeatherSphere — Live Weather Intelligence</title>
+  <meta name="description" content="Advanced real-time weather tracking with maps, forecasts, alerts and AI travel planning" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#38bdf8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+
+  <!-- Travel city autocomplete styles (inline so no extra file needed) -->
+  <style>
+    .travel-city-wrapper {
+      position: relative;
+      flex: 1;
+    }
+    #travelCitySuggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--card-bg, #1a2035);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      z-index: 200;
+      overflow: hidden;
+      display: none;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    #travelCitySuggestions.visible {
+      display: block;
+    }
+    .travel-suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: var(--text-primary, #e2e8f0);
+      transition: background 0.15s;
+    }
+    .travel-suggestion-item:hover {
+      background: rgba(56,189,248,0.12);
+    }
+  </style>
+</head>
+<body>
+    <div id="weatherParticles"></div>
+  <!-- Weather Canvas Animation Background -->
+  <canvas id="weatherCanvas"></canvas>
+
+  <!-- Alert Banner -->
+  <div id="alertBanner" class="alert-banner hidden" role="alert">
+    <div class="alert-inner">
+      <span class="alert-icon">⚠️</span>
+      <span class="alert-text" id="alertText">Severe weather alert in your area</span>
+      <button class="alert-dismiss" onclick="dismissAlert()" aria-label="Dismiss alert">✕</button>
+    </div>
+    <div class="alert-progress"></div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🌐</span>
+        <span class="logo-text">Weather<span class="logo-accent">Sphere</span></span>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-wrapper">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search any city..."
+            autocomplete="off"
+            aria-label="Search city"
+          />
+          <button class="locate-btn" id="locateBtn" title="Use my location" aria-label="Use my location">
+            📍
+          </button>
+        </div>
+        <div class="search-suggestions" id="searchSuggestions"></div>
+        <div class="recent-searches" id="recentSearches"></div>
+      </div>
+
+      <!-- Unit Toggle -->
+      <div class="unit-toggle" role="group" aria-label="Temperature unit">
+        <button class="unit-btn active" id="btnCelsius" onclick="setUnit('C')">°C</button>
+        <button class="unit-btn" id="btnFahrenheit" onclick="setUnit('F')">°F</button>
+      </div>
+
+      <!-- Nav Tabs -->
+      <nav class="nav-tabs" aria-label="Main navigation">
+        <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="nav-tab" data-tab="map" onclick="switchTab('map')">🗺️ Map</button>
+        <button class="nav-tab" data-tab="cities" onclick="switchTab('cities')">🌍 Cities</button>
+        <button class="nav-tab" data-tab="travel" onclick="switchTab('travel')">✈️ Travel</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ===== TAB: DASHBOARD ===== -->
+    <section class="tab-panel active" id="tab-dashboard">
+
+      <!-- Hero Weather Card -->
+      <div class="hero-card glass-card" id="heroCard">
+        <div class="hero-left">
+          <div class="city-info">
+            <h1 class="city-name" id="cityName">
+              <span class="skeleton skeleton-text" style="width:200px;height:36px"></span>
+            </h1>
+            <p class="city-meta" id="cityMeta">
+              <span class="skeleton skeleton-text" style="width:150px;height:18px"></span>
+            </p>
+            <p class="local-time" id="localTime"></p>
+          </div>
+          <div class="temp-display">
+            <div class="temp-main" id="tempMain">
+              <span class="skeleton skeleton-text" style="width:140px;height:100px"></span>
+            </div>
+            <div class="temp-feels" id="tempFeels"></div>
+            <div class="temp-range" id="tempRange"></div>
+          </div>
+          <div class="condition-badge" id="conditionBadge">
+            <span class="skeleton skeleton-text" style="width:120px;height:28px"></span>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="weather-icon-large" id="weatherIconLarge"></div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-icon">💧</span>
+              <span class="stat-label">Humidity</span>
+              <span class="stat-value" id="statHumidity">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">💨</span>
+              <span class="stat-label">Wind</span>
+              <span class="stat-value" id="statWind">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-label">Visibility</span>
+              <span class="stat-value" id="statVisibility">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌡️</span>
+              <span class="stat-label">Pressure</span>
+              <span class="stat-value" id="statPressure">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">☀️</span>
+              <span class="stat-label">UV Index</span>
+              <span class="stat-value" id="statUV">—</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-icon">🌫️</span>
+              <span class="stat-label">AQI</span>
+              <span class="stat-value" id="statAQI">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sun Times Row -->
+      <div class="sun-row glass-card">
+        <div class="sun-item">
+          <span class="sun-icon">🌅</span>
+          <span class="sun-label">Sunrise</span>
+          <span class="sun-time" id="sunriseTime">—</span>
+        </div>
+        <div class="sun-divider">
+          <div class="sun-arc">
+            <div class="sun-progress" id="sunProgress"></div>
+          </div>
+        </div>
+        <div class="sun-item">
+          <span class="sun-icon">🌇</span>
+          <span class="sun-label">Sunset</span>
+          <span class="sun-time" id="sunsetTime">—</span>
+        </div>
+      </div>
+
+      <!-- 3-Hourly Forecast -->
+      <div class="section-card glass-card">
+        <h2 class="section-title">⏱️ 3-Hourly Forecast</h2>
+        <!-- FIX: id was missing from original — must match UI.renderHourly() target -->
+        <div class="hourly-scroll" id="hourlyForecast">
+          <div class="skeleton-row">
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+            <span class="skeleton skeleton-block"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5-Day Forecast -->
+      <div class="section-card glass-card">
+        <h2 class="section-title">📅 5-Day Forecast</h2>
+        <div class="weekly-grid" id="weeklyForecast">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card glass-card">
+          <h2 class="section-title">📊 24h Temperature</h2>
+          <canvas id="tempChart"></canvas>
+        </div>
+        <div class="chart-card glass-card">
+          <h2 class="section-title">💧 Humidity Trend</h2>
+          <canvas id="humidityChart"></canvas>
+        </div>
+        <div class="chart-card glass-card">
+          <h2 class="section-title">💨 Wind Speed</h2>
+          <canvas id="windChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ===== TAB: MAP ===== -->
+    <section class="tab-panel" id="tab-map">
+      <div class="map-wrapper glass-card">
+        <div class="map-controls">
+          <h2 class="section-title">🗺️ Live Weather Map</h2>
+          <div class="layer-buttons" role="group" aria-label="Map layers">
+            <button class="layer-btn active" data-layer="clouds_new" onclick="toggleMapLayer('clouds_new', this)">☁️ Clouds</button>
+            <button class="layer-btn" data-layer="precipitation_new" onclick="toggleMapLayer('precipitation_new', this)">🌧️ Rain</button>
+            <button class="layer-btn" data-layer="temp_new" onclick="toggleMapLayer('temp_new', this)">🌡️ Temp</button>
+            <button class="layer-btn" data-layer="wind_new" onclick="toggleMapLayer('wind_new', this)">💨 Wind</button>
+            <button class="layer-btn" data-layer="pressure_new" onclick="toggleMapLayer('pressure_new', this)">🔵 Pressure</button>
+          </div>
+        </div>
+        <div id="weatherMap"></div>
+        <div class="map-popup-info" id="mapPopupInfo"></div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: CITIES ===== -->
+    <section class="tab-panel" id="tab-cities">
+      <div class="cities-header">
+        <h2 class="section-title">🌍 My Cities</h2>
+        <div class="add-city-form">
+          <input type="text" id="addCityInput" class="search-input" placeholder="Add a city..." />
+          <button class="btn-primary" onclick="addCity()">+ Pin City</button>
+        </div>
+      </div>
+      <p class="cities-hint">Drag cards to reorder · Click ✕ to remove</p>
+      <div class="cities-grid" id="citiesGrid">
+        <div class="empty-cities" id="emptyCities">
+          <span class="empty-icon">🏙️</span>
+          <p>No cities pinned yet.<br/>Search above to add your first city!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TAB: TRAVEL ===== -->
+    <section class="tab-panel" id="tab-travel">
+      <div class="travel-header glass-card">
+        <h2 class="section-title">✈️ Smart Travel Planner</h2>
+        <p class="section-sub">Get day-by-day forecasts + AI packing suggestions for your trip</p>
+        <div class="travel-form">
+
+          <!-- FIX: Wrapped travelCity in a relative div for the dropdown -->
+          <div class="form-group">
+            <label for="travelCity">Destination</label>
+            <div class="travel-city-wrapper">
+              <input
+                type="text"
+                id="travelCity"
+                class="search-input"
+                placeholder="e.g. Paris, Bali, New York"
+                autocomplete="off"
+              />
+              <!-- Autocomplete suggestions dropdown -->
+              <div id="travelCitySuggestions"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="travelStart">From Date</label>
+            <input type="date" id="travelStart" class="search-input" />
+          </div>
+          <div class="form-group">
+            <label for="travelEnd">To Date</label>
+            <input type="date" id="travelEnd" class="search-input" />
+          </div>
+          <button class="btn-primary btn-large" onclick="planTrip()">
+            🔍 Plan My Trip
+          </button>
+        </div>
+      </div>
+
+      <!-- Travel Results -->
+      <div id="travelResults" class="hidden">
+        <div class="travel-summary glass-card" id="travelSummary"></div>
+        <div class="travel-forecast" id="travelForecast"></div>
+        <div class="ai-packing glass-card" id="aiPacking">
+          <h3>🤖 AI Packing Suggestions</h3>
+          <div class="ai-loading" id="aiLoading">
+            <div class="ai-dots"><span></span><span></span><span></span></div>
+            <p>Generating personalized packing list...</p>
+          </div>
+          <div class="packing-list" id="packingList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <p>WeatherSphere · Powered by <a href="https://openweathermap.org" target="_blank">OpenWeatherMap</a> · Data refreshes every 10 min</p>
+    <p class="footer-note">Built with using HTML, CSS & JavaScript</p>
+  </footer>
+
+  <!-- External Libraries -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- App Scripts (order matters) -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/alerts.js"></script>
+  <script src="js/cities.js"></script>
+  <script src="js/travel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
