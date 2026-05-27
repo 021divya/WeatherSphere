@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — API Module
-   All OpenWeatherMap fetch calls
-   ============================================= */
-
 const API = {
   key: () => CONFIG.OWM_API_KEY,
   unit: () => AppState.unit === 'C' ? 'metric' : 'imperial',
