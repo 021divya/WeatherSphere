@@ -1,10 +1,3 @@
-/* =============================================
-   WeatherSphere — Travel Planner Module
-   Trip weather + AI packing list via Claude API
-   FIX 1: City input now has autocomplete dropdown (same as main search)
-   FIX 2: Geocode city first → use coords for forecast (accurate data)
-   ============================================= */
-
 const Travel = (() => {
 
   // ---- Autocomplete state ----
