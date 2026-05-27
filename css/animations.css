@@ -1,13 +1,3 @@
-/* =============================================
-   WeatherSphere — Weather Animations CSS
-   Dynamic backgrounds matching real conditions
-   ============================================= */
-
-/* Canvas-based animations are in animations.js */
-/* This file handles CSS-only effects & transitions */
-
-/* ---------- Weather Body States ---------- */
-
 body.weather-sunny {
   background: radial-gradient(ellipse at 70% 0%, #1a3a5c 0%, #070b18 60%);
 }
