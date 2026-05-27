@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — Main App
-   Entry point, state, search, tabs, init
-   ============================================= */
-
 // ---- Global App State ----
 const AppState = {
   unit: localStorage.getItem('ws_unit') || 'C',
