@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — Alerts Module
-   Severe weather alerts + browser push notifications
-   ============================================= */
-
 const Alerts = (() => {
   let notifPermission = Notification.permission;
   let shownAlerts = new Set();
