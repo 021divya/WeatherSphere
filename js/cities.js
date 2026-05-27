@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — Cities Module
-   Multi-city pinned dashboard with drag & drop
-   ============================================= */
-
 const Cities = (() => {
   const STORAGE_KEY = 'ws_cities';
   let cities = [];
