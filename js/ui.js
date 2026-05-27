@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — UI Module
-   All DOM update / render functions
-   ============================================= */
-
 const UI = {
 
   // ---- Weather condition → emoji icon ----
