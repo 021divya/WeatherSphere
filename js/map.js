@@ -1,9 +1,3 @@
-/* =============================================
-   WeatherSphere — Map Module
-   Leaflet.js interactive weather map
-   with OWM tile layer toggles & click popup
-   ============================================= */
-
 const WeatherMap = (() => {
 
   let map = null;
@@ -11,9 +5,7 @@ const WeatherMap = (() => {
   let weatherLayer = null;
   let initialized = false;
 
-  // =============================================
   // Initialize Map
-  // =============================================
 
   function init() {
 
@@ -50,9 +42,7 @@ const WeatherMap = (() => {
     // Default weather layer
     addWeatherLayer('clouds_new');
 
-    // =============================================
     // Click anywhere → Weather popup
-    // =============================================
 
     map.on('click', async function (e) {
 
@@ -76,18 +66,14 @@ const WeatherMap = (() => {
 
       try {
 
-        // =============================================
         // Fetch weather data
-        // =============================================
 
         const data = await API.getWeatherAtPoint(
           lat.toFixed(4),
           lng.toFixed(4)
         );
 
-        // =============================================
         // Reverse geocoding
-        // =============================================
 
         const locationData =
           await API.reverseGeocode(
@@ -117,9 +103,7 @@ const WeatherMap = (() => {
             country;
         }
 
-        // =============================================
         // Weather formatting
-        // =============================================
 
         const icon =
           UI.getWeatherIcon(
@@ -143,9 +127,7 @@ const WeatherMap = (() => {
             data.wind.deg
           );
 
-        // =============================================
         // Final popup content
-        // =============================================
 
         popup.setContent(`
           <div class="map-popup">
@@ -189,9 +171,7 @@ const WeatherMap = (() => {
       }
     });
 
-    // =============================================
-    // Center map on current city
-    // =============================================
+     // Center map on current city
 
     if (AppState.currentWeather) {
 
@@ -205,9 +185,7 @@ const WeatherMap = (() => {
     }
   }
 
-  // =============================================
   // Add weather layer
-  // =============================================
 
   function addWeatherLayer(layerName) {
 
@@ -229,9 +207,7 @@ const WeatherMap = (() => {
     currentTileLayer = layerName;
   }
 
-  // =============================================
   // Public API
-  // =============================================
 
   return {
 
@@ -275,9 +251,7 @@ const WeatherMap = (() => {
 
 })();
 
-// =============================================
 // Global layer toggle
-// =============================================
 
 function toggleMapLayer(layer, btn) {
 
