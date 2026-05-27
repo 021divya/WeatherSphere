@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — Canvas Animations
-   Rain, Snow, Sunny particles, Storm effects
-   ============================================= */
-
 const WeatherAnimations = (() => {
   const canvas = document.getElementById('weatherCanvas');
   const ctx = canvas.getContext('2d');
