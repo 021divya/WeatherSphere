@@ -1,8 +1,3 @@
-/* =============================================
-   WeatherSphere — Charts Module
-   Chart.js temperature, humidity, wind graphs
-   ============================================= */
-
 const Charts = (() => {
   let tempChart = null;
   let humidityChart = null;
